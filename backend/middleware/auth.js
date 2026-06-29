@@ -1,85 +1,47 @@
 /**
  * Purpose:
- * This middleware intercepts incoming HTTP requests to verify session tokens and
- * enforce role-based access control (RBAC). It ensures only logged-in users 
- * (and specifically admins or clients) can access protected endpoints.
- *
- * How requests flow:
- * 1. An incoming request hits a route protected by one of these middleware functions.
- * 2. verifySession checks for the "Authorization" header (e.g. "Bearer sess_abc123").
- * 3. It parses the token and checks authService.getSession(token).
- * 4. If the token is valid, the user's details are attached to req.user and next() is called.
- * 5. If the route also requires admin authorization, requireAdmin checks if req.user.role is 'admin'.
- * 6. If any check fails, the middleware responds with a 401 (Unauthorized) or 403 (Forbidden) error.
- *
- * Why each function exists:
- * - verifySession(req, res, next): Authenticates that the client holds a valid active session.
- * - requireAdmin(req, res, next): Ensures the authenticated user is an administrator.
- * - requireClient(req, res, next): Ensures the authenticated user is a client.
+ * Enforces authentication and role-based access control.
+ * It uses a simple in-memory session registry to map tokens to users.
  */
 
-const authService = require('../services/authService');
+// In-memory token store: Maps token string -> { userId, role, name, email }
+const sessions = {};
 
 /**
- * Middleware to check if the request is authenticated with a valid session token
+ * Middleware: Confirms request has a valid session token in Authorization header
  */
 function verifySession(req, res, next) {
     const authHeader = req.headers['authorization'];
     
-    // We expect the header format: "Bearer <session_token>" or just "<session_token>"
     if (!authHeader) {
-        return res.status(401).json({ message: 'Authentication required. No session token provided.' });
+        return res.status(401).json({ message: 'Authentication failed: Missing token.' });
     }
 
-    let token = authHeader;
-    if (authHeader.startsWith('Bearer ')) {
-        token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    }
+    // Handle standard 'Bearer <token>' format
+    const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
 
-    const session = authService.getSession(token);
-
+    const session = sessions[token];
     if (!session) {
-        return res.status(401).json({ message: 'Invalid or expired session token.' });
+        return res.status(401).json({ message: 'Authentication failed: Session expired or invalid.' });
     }
 
-    // Attach the user profile to the request object so subsequent controllers can use it
+    // Attach current user session context to request object
     req.user = session;
-    req.token = token; // Keep the token reference for logout operations
     next();
 }
 
 /**
- * Middleware to restrict access to Admins only
+ * Middleware: Demands the current user have the 'admin' role
  */
 function requireAdmin(req, res, next) {
-    if (!req.user) {
-        return res.status(401).json({ message: 'Authentication required.' });
-    }
-
     if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied. Administrator privileges required.' });
+        return res.status(403).json({ message: 'Access denied: Requires Admin role.' });
     }
-
-    next();
-}
-
-/**
- * Middleware to restrict access to Clients only
- */
-function requireClient(req, res, next) {
-    if (!req.user) {
-        return res.status(401).json({ message: 'Authentication required.' });
-    }
-
-    if (req.user.role !== 'client') {
-        return res.status(403).json({ message: 'Access denied. Client privileges required.' });
-    }
-
     next();
 }
 
 module.exports = {
     verifySession,
     requireAdmin,
-    requireClient
+    sessions
 };

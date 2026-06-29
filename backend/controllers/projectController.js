@@ -1,99 +1,65 @@
 /**
  * Purpose:
- * This controller processes HTTP requests for Project Management. It includes key
- * authorization checks, ensuring Clients can only view projects assigned to them,
- * while Admins retain full CRUD privileges.
- *
- * How requests flow:
- * 1. The router matches an endpoint (e.g. GET /api/projects/:id).
- * 2. Express triggers getProject(req, res).
- * 3. The controller parses the project ID and fetches details from projectService.
- * 4. Role Authorization Check:
- *    - If the logged-in user is an Admin, they are allowed access.
- *    - If the logged-in user is a Client, the controller verifies if req.user.userId matches project.clientId.
- *    - If it matches, the project is returned; otherwise, it sends a 403 Forbidden response.
- *
- * Why each function exists:
- * - getProjects(req, res): Lists projects. Returns all projects for Admins, or only assigned projects for Clients.
- * - getProject(req, res): Fetches detailed project metadata, with access control checks.
- * - createProject(req, res): Creates a new project (Admin-only).
- * - updateProject(req, res): Modifies project properties (e.g. updating status, assigning/reassigning client) (Admin-only).
- * - deleteProject(req, res): Removes a project from the system (Admin-only).
+ * Intercepts HTTP requests for Project management and Dashboard stats,
+ * enforces client ownership locks, and formats standard JSON outputs.
  */
 
 const projectService = require('../services/projectService');
 
 /**
- * Gets a list of projects (filtered by role)
+ * GET /api/projects - Lists projects (Filtered by user session role)
  */
 async function getProjects(req, res) {
-    const { search, status } = req.query;
-
-    // TODO: Implement advanced Search and Filter.
-    // Query parameters like '?search=substation' or '?status=completed' should be parsed
-    // and injected into projectService SQL statements (using SQL LIKE and WHERE status = ?).
-    // Currently, search/filtering is a WORK IN PROGRESS; the API defaults to returning all projects.
-    if (search || status) {
-        console.log(`[Search/Filter In-Progress] Request received for search="${search}", status="${status}". Filters are not yet applied to SQLite queries.`);
-    }
-
     try {
         let projects = [];
-        
-        // If user is a Client, they can only view projects assigned to their client ID
         if (req.user.role === 'client') {
+            // Client: Only view projects assigned to them
             projects = await projectService.getProjectsByClientId(req.user.userId);
-        } else if (req.user.role === 'admin') {
-            // Admins can see all projects in the system
-            projects = await projectService.getAllProjects();
         } else {
-            return res.status(403).json({ message: 'Access denied. Invalid user role.' });
+            // Admin: View all projects in the system
+            projects = await projectService.getAllProjects();
         }
-
         return res.status(200).json(projects);
     } catch (err) {
-        console.error('Error fetching projects:', err.message);
-        return res.status(500).json({ message: 'Internal server error while fetching projects.' });
+        return res.status(500).json({ message: err.message });
     }
 }
 
 /**
- * Gets details of a single project (with ownership checks)
+ * GET /api/projects/:id - Reads project metadata with ownership guards
  */
 async function getProject(req, res) {
-    const projectId = parseInt(req.params.id);
-    if (isNaN(projectId)) {
-        return res.status(400).json({ message: 'Invalid project ID format.' });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'Validation failed: Invalid Project ID.' });
     }
 
     try {
-        const project = await projectService.getProjectById(projectId);
-        
+        const project = await projectService.getProjectById(id);
         if (!project) {
             return res.status(404).json({ message: 'Project not found.' });
         }
 
-        // Access Control: Client can only view their own projects
+        // Ownership lock: Client can only view their own projects
         if (req.user.role === 'client' && project.clientId !== req.user.userId) {
-            return res.status(403).json({ message: 'Access denied. You do not have permission to view this project.' });
+            return res.status(403).json({ message: 'Access denied: You do not have permission to view this project.' });
         }
 
         return res.status(200).json(project);
     } catch (err) {
-        console.error('Error fetching project details:', err.message);
-        return res.status(500).json({ message: 'Internal server error.' });
+        return res.status(500).json({ message: err.message });
     }
 }
 
 /**
- * Creates a new project
+ * POST /api/projects - Creates a new project (Admin only)
  */
-async function createProject(req, res) {
+async function addProject(req, res) {
     try {
-        const newProject = await projectService.createProject(req.body);
+        const project = await projectService.createProject(req.body);
         return res.status(201).json({
             message: 'Project created successfully.',
-            project: newProject
+            project
         });
     } catch (err) {
         return res.status(400).json({ message: err.message });
@@ -101,52 +67,46 @@ async function createProject(req, res) {
 }
 
 /**
- * Updates an existing project (assign client, update status, change description)
+ * PATCH /api/projects/:id/status - Updates project status (Admin only)
  */
-async function updateProject(req, res) {
-    const projectId = parseInt(req.params.id);
-    if (isNaN(projectId)) {
-        return res.status(400).json({ message: 'Invalid project ID format.' });
+async function updateProjectStatus(req, res) {
+    const id = parseInt(req.params.id);
+    const { status } = req.body;
+
+    if (isNaN(id)) {
+        return res.status(400).json({ message: 'Validation failed: Invalid Project ID.' });
+    }
+    if (!status) {
+        return res.status(400).json({ message: 'Status is required.' });
     }
 
     try {
-        const updatedProject = await projectService.updateProject(projectId, req.body);
+        const project = await projectService.updateProject(id, status);
         return res.status(200).json({
-            message: 'Project updated successfully.',
-            project: updatedProject
+            message: 'Project status updated successfully.',
+            project
         });
     } catch (err) {
-        if (err.message.includes('not found')) {
-            return res.status(404).json({ message: err.message });
-        }
         return res.status(400).json({ message: err.message });
     }
 }
 
 /**
- * Deletes a project
+ * GET /api/projects/dashboard/stats - Returns Simple Dashboard counts
  */
-async function deleteProject(req, res) {
-    const projectId = parseInt(req.params.id);
-    if (isNaN(projectId)) {
-        return res.status(400).json({ message: 'Invalid project ID format.' });
-    }
-
+async function getDashboardStats(req, res) {
     try {
-        await projectService.deleteProject(projectId);
-        return res.status(200).json({ message: 'Project deleted successfully.' });
+        const stats = await projectService.getDashboardStats();
+        return res.status(200).json(stats);
     } catch (err) {
-        if (err.message.includes('not found')) {
-            return res.status(404).json({ message: err.message });
-        }
-        return res.status(500).json({ message: 'Internal server error.' });
+        return res.status(500).json({ message: err.message });
     }
 }
 
 module.exports = {
     getProjects,
     getProject,
-    createProject,
-    updateProject,
-    deleteProject
+    addProject,
+    updateProjectStatus,
+    getDashboardStats
 };

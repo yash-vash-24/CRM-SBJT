@@ -1,182 +1,125 @@
 /**
  * Purpose:
- * This service handles all SQL database interactions with the 'projects' table in SQLite.
- * It implements queries to create, retrieve, update, and search projects, including 
- * relational SQL JOINs to fetch client contact information.
- *
- * How requests flow:
- * 1. ProjectController calls a function in this service (e.g. getProjectById).
- * 2. This service queries the SQLite database, joining the projects table with the users table.
- * 3. It returns the project records (or errors) back to the ProjectController.
- *
- * Why each function exists:
- * - getAllProjects(): Retrieves all projects in the system (used by Admins to see overall operations).
- * - getProjectsByClientId(clientId): Retrieves only the projects assigned to a specific client.
- * - getProjectById(id): Retrieves detailed info of a project, joining client information for a rich detail view.
- * - createProject(projectData): Inserts a new project, setting default status to 'pending'.
- * - updateProject(id, updateData): Updates project info, including client assignment and status.
- * - deleteProject(id): Deletes a project record.
+ * Connects directly to the SQLite 'projects' and 'users' tables.
+ * Uses SQL LEFT JOIN to combine project and client information,
+ * and performs COUNT query aggregations for the dashboard.
  */
 
 const db = require('../config/database');
 
 /**
- * Retrieves all projects, joining client names and companies
- * @returns {Promise<Array>} List of project objects
+ * Fetch all projects in the system (Admin only)
  */
 function getAllProjects() {
     return new Promise((resolve, reject) => {
-        const query = `
-            SELECT p.*, u.name as clientName, u.company as clientCompany 
-            FROM projects p 
-            LEFT JOIN users u ON p.clientId = u.id 
-            ORDER BY p.createdAt DESC
-        `;
-        db.all(query, [], (err, rows) => {
-            if (err) {
-                return reject(err);
+        db.all(
+            `SELECT p.id, p.name, p.description, p.clientId, p.status, p.createdAt, u.name AS clientName, u.company AS clientCompany 
+             FROM projects p 
+             LEFT JOIN users u ON p.clientId = u.id 
+             ORDER BY p.id DESC`,
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
             }
-            resolve(rows);
-        });
+        );
     });
 }
 
 /**
- * Retrieves all projects assigned to a specific client ID
- * @param {number} clientId 
- * @returns {Promise<Array>} List of client's project objects
+ * Fetch projects assigned to a specific Client
  */
 function getProjectsByClientId(clientId) {
     return new Promise((resolve, reject) => {
-        const query = `
-            SELECT p.*, u.name as clientName, u.company as clientCompany 
-            FROM projects p 
-            LEFT JOIN users u ON p.clientId = u.id 
-            WHERE p.clientId = ?
-            ORDER BY p.createdAt DESC
-        `;
-        db.all(query, [clientId], (err, rows) => {
-            if (err) {
-                return reject(err);
+        db.all(
+            `SELECT p.id, p.name, p.description, p.clientId, p.status, p.createdAt, u.name AS clientName 
+             FROM projects p 
+             LEFT JOIN users u ON p.clientId = u.id 
+             WHERE p.clientId = ? 
+             ORDER BY p.id DESC`,
+            [clientId],
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
             }
-            resolve(rows);
-        });
+        );
     });
 }
 
 /**
- * Retrieves a single project's details, joining client details
- * @param {number} id 
- * @returns {Promise<object>} Project detail object
+ * Fetch details of a single project
  */
 function getProjectById(id) {
     return new Promise((resolve, reject) => {
-        const query = `
-            SELECT p.*, u.name as clientName, u.email as clientEmail, u.company as clientCompany, u.phone as clientPhone
-            FROM projects p 
-            LEFT JOIN users u ON p.clientId = u.id 
-            WHERE p.id = ?
-        `;
-        db.get(query, [id], (err, row) => {
-            if (err) {
-                return reject(err);
+        db.get(
+            `SELECT p.id, p.name, p.description, p.clientId, p.status, p.createdAt, u.name AS clientName, u.company AS clientCompany, u.phone AS clientPhone 
+             FROM projects p 
+             LEFT JOIN users u ON p.clientId = u.id 
+             WHERE p.id = ?`,
+            [id],
+            (err, row) => {
+                if (err) return reject(err);
+                resolve(row);
             }
-            resolve(row);
-        });
+        );
     });
 }
 
 /**
- * Inserts a new project
- * @param {object} projectData - { name, description, clientId, status }
- * @returns {Promise<object>} Created project details
+ * Creates a new project in the database
  */
-function createProject(projectData) {
+function createProject(data) {
     return new Promise((resolve, reject) => {
-        const { name, description, clientId, status } = projectData;
-
+        const { name, description, clientId } = data;
         if (!name) {
             return reject(new Error('Project name is required.'));
         }
 
-        const projectStatus = status || 'pending';
-
-        const query = `
-            INSERT INTO projects (name, description, clientId, status) 
-            VALUES (?, ?, ?, ?)
-        `;
-
-        db.run(query, [name, description || null, clientId || null, projectStatus], function(err) {
-            if (err) {
-                return reject(err);
+        db.run(
+            `INSERT INTO projects (name, description, clientId, status) VALUES (?, ?, ?, 'pending')`,
+            [name, description || null, clientId || null],
+            function (err) {
+                if (err) return reject(err);
+                resolve({ id: this.lastID, name, description, clientId, status: 'pending' });
             }
+        );
+    });
+}
+
+/**
+ * Updates a project's status
+ */
+function updateProject(id, status) {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `UPDATE projects SET status = ? WHERE id = ?`,
+            [status, id],
+            function (err) {
+                if (err) return reject(err);
+                if (this.changes === 0) return reject(new Error('Project not found.'));
+                resolve({ id, status });
+            }
+        );
+    });
+}
+
+/**
+ * Aggregates client and project counts for the Simple Dashboard
+ */
+function getDashboardStats() {
+    return new Promise((resolve, reject) => {
+        // Query 1: Count clients
+        db.get("SELECT COUNT(*) AS totalClients FROM users WHERE role = 'client'", (err, clientRow) => {
+            if (err) return reject(err);
             
-            resolve({
-                id: this.lastID,
-                name,
-                description,
-                clientId,
-                status: projectStatus
+            // Query 2: Count projects
+            db.get("SELECT COUNT(*) AS totalProjects FROM projects", (err, projectRow) => {
+                if (err) return reject(err);
+                
+                resolve({
+                    totalClients: clientRow.totalClients || 0,
+                    totalProjects: projectRow.totalProjects || 0
+                });
             });
-        });
-    });
-}
-
-/**
- * Updates an existing project
- * @param {number} id 
- * @param {object} updateData - { name, description, clientId, status }
- * @returns {Promise<object>} Updated project details
- */
-function updateProject(id, updateData) {
-    return new Promise((resolve, reject) => {
-        const { name, description, clientId, status } = updateData;
-
-        if (!name) {
-            return reject(new Error('Project name is required.'));
-        }
-
-        const query = `
-            UPDATE projects 
-            SET name = ?, description = ?, clientId = ?, status = ?, updatedAt = CURRENT_TIMESTAMP 
-            WHERE id = ?
-        `;
-
-        db.run(query, [name, description || null, clientId || null, status, id], function(err) {
-            if (err) {
-                return reject(err);
-            }
-
-            if (this.changes === 0) {
-                return reject(new Error('Project not found.'));
-            }
-
-            resolve({
-                id,
-                name,
-                description,
-                clientId,
-                status
-            });
-        });
-    });
-}
-
-/**
- * Deletes a project record
- * @param {number} id 
- * @returns {Promise<boolean>} True if deleted
- */
-function deleteProject(id) {
-    return new Promise((resolve, reject) => {
-        db.run('DELETE FROM projects WHERE id = ?', [id], function(err) {
-            if (err) {
-                return reject(err);
-            }
-            if (this.changes === 0) {
-                return reject(new Error('Project not found.'));
-            }
-            resolve(true);
         });
     });
 }
@@ -187,5 +130,5 @@ module.exports = {
     getProjectById,
     createProject,
     updateProject,
-    deleteProject
+    getDashboardStats
 };

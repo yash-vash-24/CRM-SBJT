@@ -32,18 +32,17 @@ This project represents an active, mid-development prototype being prepared for 
 ## ⚡ Technology Stack
 
 - **Frontend:** Next.js (App Router), React, Tailwind CSS, Lucide Icons
-- **Backend:** Express.js, SQLite, Node.js
+- **Backend:** Node.js, Express.js, SQLite3
 - **Database / Infrastructure:** Local SQLite database file with no external database server required
+- **Authentication:** In-memory session registry (no complex JWT/OAuth)
 
 ---
 
 ## 🏗️ System Architecture & Role-Based Access Control (RBAC)
 
-VoltFlow CRM features robust, role-aware routing and UI layout views for four key staff roles:
-1. **Admin:** Full CRUD access over clients, workforce assignments, budgets, invoice deletions, material transactions, and tenders pipeline.
-2. **Supervisor:** Oversees project progress, reports daily site-level worker attendance logs, updates project timeline status, and uploads safety inspector clearances.
-3. **Client:** Read-only client portal view showcasing ongoing project progress percentages, active invoice statements, and downloaded site blueprints.
-4. **Worker:** Accesses scheduled shift details, assigned projects list, and logs attendance confirmations.
+VoltFlow CRM features a simplified, beginner-friendly MVC architecture:
+1. **Admin:** Full CRUD access over Client profiles and Project logs, including access to dashboard aggregates.
+2. **Client:** Read-only access to view Projects assigned specifically to their account ID.
 
 ---
 
