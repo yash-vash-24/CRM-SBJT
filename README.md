@@ -4,11 +4,36 @@ VoltFlow CRM is a full-featured, enterprise-grade admin dashboard and customer r
 
 ---
 
+## 📊 Project Status (Mid-Development Stage: ~65-70% Complete)
+
+This project represents an active, mid-development prototype being prepared for internship evaluation. Key core modules are fully implemented with database integration, while advanced modules contain boilerplate placeholders and developer TODO logs.
+
+### ✅ Completed & Fully Functional Features:
+- **Authentication**: Admin and Client logins with stateful session support and secure password hashing via `bcryptjs`.
+- **Client Management (CRUD)**: Create, view, edit, and delete client company profiles (persisted in SQLite).
+- **Project Management**: Create projects, assign clients, and update completion status/milestones.
+- **Basic Dashboard**: Dashboard shell displaying project lists.
+- **Database Integration**: Auto-migrating and auto-seeding SQLite database file initialization.
+
+### 🚧 Work In Progress (Draft Endpoints & Boilerplates):
+- **Document Upload**: Multer uploading works to save files to server disk. Database persistence and security scanning are pending (returning mock responses with TODO logs).
+- **Dashboard Analytics**: Exposes mock REST stats on active counts and monthly revenues (SQL COUNT/SUM aggregations pending).
+- **Notifications**: Exposes mock alerts endpoint (WebSocket/Socket.io real-time broadcast and DB schema pending).
+- **Report Generation**: Exposes mock report download URL (PDFKit compile engine integration pending).
+- **Search and Filter**: Controller triggers console logs indicating search variables are received (SQL `LIKE` query parameter filtering pending).
+
+### 🔮 Future Enhancements (Post-Internship Goals):
+- [ ] Migrate in-memory session registry to Redis.
+- [ ] Deploy Docker containers for Postgres databases.
+- [ ] Integrate safety inspector CEIG signoff upload signatures.
+
+---
+
 ## ⚡ Technology Stack
 
 - **Frontend:** Next.js (App Router), React, Tailwind CSS, Lucide Icons
-- **Backend:** Express.js, PostgreSQL (via pg client pool), Node.js
-- **Database / Infrastructure:** Dockerized PostgreSQL database container
+- **Backend:** Express.js, SQLite, Node.js
+- **Database / Infrastructure:** Local SQLite database file with no external database server required
 
 ---
 
@@ -62,13 +87,7 @@ A file storage portal indexing local drawings, CEIG regulatory inspector approva
 
 ## 🚀 How to Set Up and Run Locally
 
-### 1. Database Setup
-Start the local PostgreSQL container using Docker Compose:
-```bash
-docker-compose up -d
-```
-
-### 2. Backend Setup
+### 1. Backend Setup (SQLite)
 1. Navigate to the backend folder:
    ```bash
    cd backend
@@ -77,16 +96,13 @@ docker-compose up -d
    ```bash
    npm install
    ```
-3. Initialize and seed the database with demo values:
-   ```bash
-   npm run seed
-   ```
-4. Start the development server (runs on port 5000):
+3. Start the development server (runs on port 5000):
    ```bash
    npm run dev
    ```
+   *(Note: The SQLite database file will automatically initialize and seed default admin/client credentials upon server boot!)*
 
-### 3. Frontend Setup
+### 2. Frontend Setup
 1. Navigate to the frontend folder:
    ```bash
    cd ../frontend

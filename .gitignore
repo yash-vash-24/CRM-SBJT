@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Local databases and locks
+*.db
+*.sqlite
+*.sqlite3
+backend/database.sqlite
+backend/database.sqlite-journal
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build outputs
+dist/
+backend/dist/
+frontend/.next/
+frontend/out/
+build/
+
+# Multer uploads directory contents (ignore actual uploaded files, keep folder)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
