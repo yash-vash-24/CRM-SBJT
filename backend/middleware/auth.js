@@ -40,8 +40,19 @@ function requireAdmin(req, res, next) {
     next();
 }
 
+/**
+ * Middleware: Allows access for 'admin' or 'supervisor' roles
+ */
+function requireAdminOrSupervisor(req, res, next) {
+    if (req.user.role !== 'admin' && req.user.role !== 'supervisor') {
+        return res.status(403).json({ message: 'Access denied: Requires Admin or Supervisor role.' });
+    }
+    next();
+}
+
 module.exports = {
     verifySession,
     requireAdmin,
+    requireAdminOrSupervisor,
     sessions
 };
