@@ -1,7 +1,7 @@
 /**
  * Purpose:
- * Connects directly to the SQLite 'users' table to perform Client CRUD operations.
- * All functions return Promises to make controller code clean and readable.
+ * Connects directly to the SQLite 'users', 'projects', and 'invoices' tables to perform Client CRUD operations.
+ * Resolves properties to snake_case format as expected by the frontend.
  */
 
 const db = require('../config/database');
@@ -12,41 +12,97 @@ const bcrypt = require('bcryptjs');
  */
 function getAllClients() {
     return new Promise((resolve, reject) => {
-        db.all("SELECT id, name, email, company, phone, createdAt FROM users WHERE role = 'client' ORDER BY id DESC", (err, rows) => {
-            if (err) return reject(err);
-            resolve(rows);
-        });
+        db.all(
+            `SELECT id, name AS contact_name, email, company AS company_name, phone, address, status, createdAt 
+             FROM users 
+             WHERE role = 'client' 
+             ORDER BY id DESC`,
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
     });
 }
 
 /**
- * Fetch single client profile by ID
+ * Fetch single client profile by ID along with their projects and invoices
  */
 function getClientById(id) {
     return new Promise((resolve, reject) => {
-        db.get("SELECT id, name, email, company, phone, createdAt FROM users WHERE id = ? AND role = 'client'", [id], (err, row) => {
-            if (err) return reject(err);
-            resolve(row);
-        });
+        // Query 1: Get client profile info
+        db.get(
+            `SELECT id, name AS contact_name, email, company AS company_name, phone, address, status, createdAt 
+             FROM users 
+             WHERE id = ? AND role = 'client'`,
+            [id],
+            (err, clientRow) => {
+                if (err) return reject(err);
+                if (!clientRow) return resolve(null);
+
+                // Query 2: Get client projects history
+                db.all(
+                    `SELECT id, name, budget, progress_percent, status 
+                     FROM projects 
+                     WHERE client_id = ? 
+                     ORDER BY id DESC`,
+                    [id],
+                    (err, projectRows) => {
+                        if (err) return reject(err);
+
+                        // Query 3: Get client invoices history
+                        db.all(
+                            `SELECT id, invoice_number, due_date, amount, status 
+                             FROM invoices 
+                             WHERE client_id = ? 
+                             ORDER BY id DESC`,
+                            [id],
+                            (err, invoiceRows) => {
+                                if (err) return reject(err);
+
+                                resolve({
+                                    client: clientRow,
+                                    projects: projectRows || [],
+                                    invoices: invoiceRows || []
+                                });
+                            }
+                        );
+                    }
+                );
+            }
+        );
     });
 }
 
 /**
- * Inserts a new Client account
+ * Inserts a new Client account.
+ * Defaults password to 'client123' if not provided since the frontend doesn't prompt for password.
  */
 function createClient(data) {
     return new Promise(async (resolve, reject) => {
-        const { name, email, password, company, phone } = data;
+        const { company_name, contact_name, email, phone, address, status } = data;
         
-        if (!name || !email || !password) {
-            return reject(new Error('Name, email, and password are required.'));
+        if (!contact_name || !email) {
+            return reject(new Error('Contact name and email are required.'));
         }
 
         try {
-            const hash = await bcrypt.hash(password, 10);
+            // Set a default password for the client
+            const defaultPassword = 'client123';
+            const hash = await bcrypt.hash(defaultPassword, 10);
+            
             db.run(
-                `INSERT INTO users (name, email, password, role, company, phone) VALUES (?, ?, ?, 'client', ?, ?)`,
-                [name, email, hash, company || null, phone || null],
+                `INSERT INTO users (name, email, password, role, company, phone, address, status) 
+                 VALUES (?, ?, ?, 'client', ?, ?, ?, ?)`,
+                [
+                    contact_name, 
+                    email, 
+                    hash, 
+                    company_name || null, 
+                    phone || null, 
+                    address || null, 
+                    status || 'active'
+                ],
                 function (err) {
                     if (err) {
                         if (err.message.includes('UNIQUE constraint failed')) {
@@ -54,7 +110,15 @@ function createClient(data) {
                         }
                         return reject(err);
                     }
-                    resolve({ id: this.lastID, name, email, company, phone });
+                    resolve({ 
+                        id: this.lastID, 
+                        company_name, 
+                        contact_name, 
+                        email, 
+                        phone, 
+                        address, 
+                        status: status || 'active' 
+                    });
                 }
             );
         } catch (err) {
@@ -68,36 +132,38 @@ function createClient(data) {
  */
 function updateClient(id, data) {
     return new Promise(async (resolve, reject) => {
-        const { name, email, password, company, phone } = data;
+        const { company_name, contact_name, email, phone, address, status } = data;
 
-        if (!name || !email) {
-            return reject(new Error('Name and email are required.'));
+        if (!contact_name || !email) {
+            return reject(new Error('Contact name and email are required.'));
         }
 
-        let query = 'UPDATE users SET name = ?, email = ?, company = ?, phone = ?';
-        const params = [name, email, company || null, phone || null];
-
-        if (password) {
-            const hash = await bcrypt.hash(password, 10);
-            query += ', password = ?';
-            params.push(hash);
-        }
-
-        query += ' WHERE id = ? AND role = \'client\'';
-        params.push(id);
-
-        db.run(query, params, function (err) {
-            if (err) {
-                if (err.message.includes('UNIQUE constraint failed')) {
-                    return reject(new Error('Duplicate email: Email already in use.'));
+        db.run(
+            `UPDATE users 
+             SET name = ?, email = ?, company = ?, phone = ?, address = ?, status = ? 
+             WHERE id = ? AND role = 'client'`,
+            [
+                contact_name, 
+                email, 
+                company_name || null, 
+                phone || null, 
+                address || null, 
+                status || 'active', 
+                id
+            ],
+            function (err) {
+                if (err) {
+                    if (err.message.includes('UNIQUE constraint failed')) {
+                        return reject(new Error('Duplicate email: Email already in use.'));
+                    }
+                    return reject(err);
                 }
-                return reject(err);
+                if (this.changes === 0) {
+                    return reject(new Error('Client not found.'));
+                }
+                resolve({ id, company_name, contact_name, email, phone, address, status });
             }
-            if (this.changes === 0) {
-                return reject(new Error('Client not found.'));
-            }
-            resolve({ id, name, email, company, phone });
-        });
+        );
     });
 }
 
