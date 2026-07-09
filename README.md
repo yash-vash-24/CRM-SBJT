@@ -1,151 +1,218 @@
-# VoltFlow CRM — Electrical Infrastructure ERP & Project Management System
-
-VoltFlow CRM is a full-featured, enterprise-grade admin dashboard and customer relationship management system specifically tailored for electrical infrastructure contracting firms. Designed for managing utility projects (such as 33/11KV substation commissioning, HT/LT transmission line construction, utility pole erection, and empanelled government works for boards like DHBVN), it integrates CRM, project logging, material inventory control, HR/attendance, and billing in one dashboard.
-
----
-
-## 📊 Project Status (Mid-Development Stage: ~65-70% Complete)
-
-This project represents an active, mid-development prototype being prepared for internship evaluation. Key core modules are fully implemented with database integration, while advanced modules contain boilerplate placeholders and developer TODO logs.
-
-### ✅ Completed & Fully Functional Features:
-- **Authentication**: Admin and Client logins with stateful session support and secure password hashing via `bcryptjs`.
-- **Client Management (CRUD)**: Create, view, edit, and delete client company profiles (persisted in SQLite).
-- **Project Management**: Create projects, assign clients, and update completion status/milestones.
-- **Basic Dashboard**: Dashboard shell displaying project lists.
-- **Database Integration**: Auto-migrating and auto-seeding SQLite database file initialization.
-
-### 🚧 Work In Progress (Draft Endpoints & Boilerplates):
-- **Document Upload**: Multer uploading works to save files to server disk. Database persistence and security scanning are pending (returning mock responses with TODO logs).
-- **Dashboard Analytics**: Exposes mock REST stats on active counts and monthly revenues (SQL COUNT/SUM aggregations pending).
-- **Notifications**: Exposes mock alerts endpoint (WebSocket/Socket.io real-time broadcast and DB schema pending).
-- **Report Generation**: Exposes mock report download URL (PDFKit compile engine integration pending).
-- **Search and Filter**: Controller triggers console logs indicating search variables are received (SQL `LIKE` query parameter filtering pending).
-
-### 🔮 Future Enhancements (Post-Internship Goals):
-- [ ] Migrate in-memory session registry to Redis.
-- [ ] Deploy Docker containers for Postgres databases.
-- [ ] Integrate safety inspector CEIG signoff upload signatures.
+<p align="center">
+  <h1 align="center">⚡ VoltFlow CRM</h1>
+  <p align="center">
+    <strong>Enterprise Resource Planning & CRM for Electrical Infrastructure Contractors</strong>
+  </p>
+  <p align="center">
+    <a href="#-quick-start">Quick Start</a> · <a href="#-modules">Modules</a> · <a href="#-api-reference">API Reference</a> · <a href="#-roadmap">Roadmap</a>
+  </p>
+</p>
 
 ---
 
-## ⚡ Technology Stack
+## 📋 Overview
 
-- **Frontend:** Next.js (App Router), React, Tailwind CSS, Lucide Icons
-- **Backend:** Node.js, Express.js, SQLite3
-- **Database / Infrastructure:** Local SQLite database file with no external database server required
-- **Authentication:** In-memory session registry (no complex JWT/OAuth)
+VoltFlow CRM is a domain-specific ERP system built for electrical infrastructure contracting firms. It consolidates **CRM, project tracking, HR & attendance, material inventory, tender management, invoicing, and document storage** into a single unified dashboard.
 
----
+**Target Domain** — Utility-scale electrical projects: 33/11 KV substation commissioning, HT/LT transmission lines, utility pole erection, and empanelled government works (DHBVN and similar state electricity boards).
 
-## 🏗️ System Architecture & Role-Based Access Control (RBAC)
+### Key Capabilities
 
-VoltFlow CRM features a simplified, beginner-friendly MVC architecture:
-1. **Admin:** Full CRUD access over Client profiles and Project logs, including access to dashboard aggregates.
-2. **Client:** Read-only access to view Projects assigned specifically to their account ID.
-
----
-
-## 📦 System Modules
-
-### 1. Executive Dashboard (`/dashboard`)
-An operations cockpit featuring real-time tracking widgets:
-- Role-specific card grids (e.g., active projects count, low-stock notifications, outstanding invoice totals).
-- Interactive SVG charts showing monthly expenditure distributions.
-- Recent activity log stream capturing site actions.
-
-### 2. Public Site & Inquiries (`/`)
-A landing page featuring completed/ongoing portfolios, services catalog, and career openings. Includes a **Request a Quote** form connected to the backend API that automatically creates draft files in the Tenders pipeline.
-
-### 3. CRM Client Management (`/dashboard/clients`)
-A client register where managers can add and edit client accounts, view active projects, and check total outstanding invoice statements.
-
-### 4. Projects Tracker (`/dashboard/projects`)
-A project control sheet allowing supervisors to adjust progress sliders, assign workforce teams, and link invoices and structural blueprints.
-
-### 5. HR & Attendance Terminal (`/dashboard/employees`)
-A dual-mode workforce manager:
-- **HR Ledger:** Basic employee database tracking designations, contacts, and roles.
-- **Attendance Terminal:** Allows supervisors on-site to log daily worker shifts (present/absent) directly back to the database.
-
-### 6. Material Inventory Ledger (`/dashboard/inventory`)
-A stock inventory manager tracking electrical components (substation transformers, ACSR conductors, GI poles, insulating cross-arms):
-- Live stock counts with low-stock warnings.
-- Material ledger tracking additions and withdrawals.
-
-### 7. Tenders Bidding Pipeline (`/dashboard/tenders`)
-A tender record ledger for tracking Notice Inviting Tender (NIT) files, submission target dates, and EMD (Earnest Money Deposit) refund ledgers.
-
-### 8. RA Invoicing & Billing (`/dashboard/invoices`)
-A billing dashboard supporting RA (Running Account) bills creation, automatic client lookup based on selected project site, and a simulated invoice document layout.
-
-### 9. Document Vault (`/dashboard/documents`)
-A file storage portal indexing local drawings, CEIG regulatory inspector approvals, and contracts, filterable by file category and linked project scope.
+| Capability | Description |
+|---|---|
+| **Client Management** | Full CRUD lifecycle for client company profiles |
+| **Project Tracking** | Progress sliders, workforce assignment, milestone tracking |
+| **HR & Attendance** | Employee ledger with daily shift logging (present/absent) |
+| **Material Inventory** | Stock counts, low-stock alerts, movement ledger (IN/OUT) |
+| **Tender Pipeline** | NIT tracking, submission deadlines, EMD deposit management |
+| **RA Invoicing** | Running Account bill creation with auto client lookup |
+| **Document Vault** | Indexed file storage for blueprints, contracts, and CEIG approvals |
+| **Role-Based Access** | Admin, Supervisor, Client, and Worker permission tiers |
 
 ---
 
-## 🚀 How to Set Up and Run Locally
+## 🛠️ Tech Stack
 
-### 1. Backend Setup (SQLite)
-1. Navigate to the backend folder:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server (runs on port 5000):
-   ```bash
-   npm run dev
-   ```
-   *(Note: The SQLite database file will automatically initialize and seed default admin/client credentials upon server boot!)*
-
-### 2. Frontend Setup
-1. Navigate to the frontend folder:
-   ```bash
-   cd ../frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the Next.js development server (runs on port 3000):
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000) in your web browser.
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend** | Next.js 16 (App Router), React 19, TypeScript | Server-side rendering, file-based routing |
+| **Styling** | Tailwind CSS 4, Lucide React Icons | Utility-first responsive design |
+| **Backend** | Node.js, Express.js 4 | RESTful API server |
+| **Database** | SQLite 3 (file-based) | Zero-config relational storage |
+| **Auth** | bcryptjs + in-memory session registry | Stateful token-based authentication |
+| **DevOps** | Docker Compose (Postgres-ready), Shell scripts | Containerised deployment path |
 
 ---
 
-## 📤 How to Push this Repository to your GitHub
+## 🏗️ Architecture
 
-Since terminal commands for external services are restricted inside the environment sandbox, please run the following commands in your local computer's terminal to upload the code to your GitHub account:
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      CLIENT (Browser)                        │
+│          Next.js 16 App Router · React 19 · TypeScript       │
+└──────────────────────┬───────────────────────────────────────┘
+                       │  HTTP (REST JSON)
+                       │  Port 3000 → Port 5000
+┌──────────────────────▼───────────────────────────────────────┐
+│                    API SERVER (Express.js)                    │
+│                                                              │
+│  ┌─────────┐  ┌────────────┐  ┌──────────────────────────┐  │
+│  │ Routes  │→ │ Middleware  │→ │      Controllers         │  │
+│  │         │  │ (Auth/RBAC) │  │  (Business Logic)        │  │
+│  └─────────┘  └────────────┘  └────────────┬─────────────┘  │
+│                                             │                │
+│                                ┌────────────▼─────────────┐  │
+│                                │   SQLite Database Layer   │  │
+│                                │   (Auto-migrate & seed)   │  │
+│                                └──────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+```
 
-1. **Initialize Git in the project root folder:**
-   ```bash
-   cd /home/yash/Electrical-CRM
-   git init
-   ```
+### Architectural Pattern — Layered MVC
 
-2. **Add all files to Git staging:**
-   ```bash
-   git add .
-   ```
+The backend follows a **Routes → Middleware → Controllers → Database** pipeline:
 
-3. **Commit the files:**
-   ```bash
-   git commit -m "Initial commit — VoltFlow Electrical CRM System"
-   ```
+| Layer | Responsibility | Files |
+|---|---|---|
+| **Routes** | HTTP verb mapping, parameter validation | `routes/*.js` |
+| **Middleware** | Authentication (`verifySession`), RBAC (`requireAdmin`, `requireAdminOrSupervisor`) | `middleware/auth.js` |
+| **Controllers** | Business logic, SQL queries, response formatting | `controllers/*.js` |
+| **Models** | Schema definitions, auto-migration, seed data | `models/schema.sql`, `config/database.js` |
 
-4. **Create a new repository on GitHub:**
-   - Go to [github.com/new](https://github.com/new).
-   - Enter `Electrical-Contractor-CRM` or `VoltFlow-CRM` as the repository name.
-   - Click **Create repository**.
+### Why This Architecture?
 
-5. **Link the remote repository and push:**
-   ```bash
-   git remote add origin <YOUR_GITHUB_REPOSITORY_URL>
-   git branch -M main
-   git push -u origin main
-   ```
+- **Zero-config database** — SQLite requires no external server, auto-initialises on first boot, and self-seeds default credentials.
+- **Clean separation of concerns** — Each layer has a single responsibility, making the codebase easy to navigate and extend.
+- **Role-based middleware chain** — Auth guards are composable and applied declaratively at the route level.
+- **Decoupled frontend** — Next.js communicates exclusively via REST, allowing independent deployment and future mobile client integration.
+- **Production migration path** — Docker Compose config is pre-configured for PostgreSQL, enabling a seamless transition from SQLite for production deployments.
+
+---
+
+## 📦 Modules
+
+### Frontend Pages
+
+| Route | Module | Description |
+|---|---|---|
+| `/` | Public Site | Landing page with portfolio, services, careers, and "Request a Quote" form |
+| `/login` | Authentication | Role-based login for Admin and Client users |
+| `/dashboard` | Executive Dashboard | KPI cards, activity feed, chart widgets |
+| `/dashboard/clients` | Client Management | Client company CRUD with invoice summaries |
+| `/dashboard/projects` | Project Tracker | Progress tracking, workforce assignment, milestone management |
+| `/dashboard/employees` | HR & Attendance | Employee ledger and daily shift attendance logging |
+| `/dashboard/inventory` | Material Inventory | Stock register with low-stock alerts and movement logs |
+| `/dashboard/tenders` | Tender Pipeline | NIT records, deadline tracking, EMD ledger |
+| `/dashboard/invoices` | RA Invoicing | Running Account bill creation and management |
+| `/dashboard/documents` | Document Vault | File storage indexed by category and project |
+
+### Backend API Endpoints
+
+| Prefix | Resource | Key Operations |
+|---|---|---|
+| `/api/auth` | Authentication | Login, logout, session validation |
+| `/api/clients` | Clients | CRUD operations (Admin-only write access) |
+| `/api/projects` | Projects | CRUD, progress updates, worker assignment |
+| `/api/employees` | Employees | CRUD, attendance records |
+| `/api/reports` | Reports | Aggregated report generation |
+| `/health` | Health Check | Server status and uptime |
+
+---
+
+## 🗄️ Database Schema
+
+9 relational tables with enforced foreign keys (`PRAGMA foreign_keys = ON`):
+
+| Table | Purpose | Key Relationships |
+|---|---|---|
+| `users` | Authentication & role management (admin, supervisor, client, worker) | — |
+| `employees` | HR ledger (designation, salary, attendance) | → `users` |
+| `projects` | Utility infrastructure jobs with progress tracking | → `users` (client, supervisor) |
+| `project_workers` | Many-to-many project ↔ employee mapping | → `projects`, `employees` |
+| `inventory` | Material stock register (8 categories) | — |
+| `stock_logs` | Inventory movement audit trail (IN/OUT) | → `inventory` |
+| `tenders` | Bidding pipeline with EMD tracking | — |
+| `invoices` | RA billing with status lifecycle | → `projects`, `users` |
+| `documents` | File metadata (contracts, blueprints, clearances) | → `projects`, `tenders` |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** ≥ 18
+- **npm** ≥ 9
+
+### 1. Backend
+
+```bash
+cd backend
+npm install
+npm run dev          # Starts on http://localhost:5000
+```
+
+> The SQLite database auto-initialises and seeds default admin/client credentials on first boot.
+
+### 2. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev          # Starts on http://localhost:3000
+```
+
+Open [http://localhost:3000](http://localhost:3000) to access the application.
+
+### Docker (Optional — PostgreSQL)
+
+```bash
+docker-compose up -d     # Starts PostgreSQL 15 on port 5432
+```
+
+---
+
+## 📁 Project Structure
+
+```
+VoltFlow-CRM/
+├── backend/
+│   ├── config/              # Database connection & initialisation
+│   ├── controllers/         # Business logic (auth, clients, projects, employees, reports)
+│   ├── middleware/           # Authentication & RBAC guards
+│   ├── models/              # SQL schema definitions
+│   ├── routes/              # Express route handlers
+│   ├── services/            # Service layer utilities
+│   ├── uploads/             # File upload directory
+│   └── server.js            # Application entry point
+├── frontend/
+│   └── src/
+│       ├── app/             # Next.js App Router pages & layouts
+│       └── context/         # React context providers
+├── docker-compose.yml       # PostgreSQL container config
+└── start_dev.sh             # Development startup script
+```
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Migrate session storage from in-memory to Redis
+- [ ] Complete PostgreSQL migration with Docker deployment
+- [ ] Wire dashboard analytics with live SQL aggregations
+- [ ] Integrate real-time notifications via WebSocket
+- [ ] Add PDF report generation with PDFKit
+- [ ] Implement full-text search with parameterised SQL filtering
+- [ ] Add CEIG inspector digital signoff workflow
+
+---
+
+## 📄 License
+
+This project is proprietary software developed for internal use.
+
+---
+
+<p align="center">
+  Built with ⚡ for the electrical infrastructure industry
+</p>
