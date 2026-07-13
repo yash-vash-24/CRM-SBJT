@@ -585,7 +585,7 @@ export default function InventoryPage() {
                     <option value="Transformers">Transformers & Bays</option>
                     <option value="Conductors">Conductors & Cables</option>
                     <option value="Insulators">Insulators & Clamps</option>
-                    <option value="Panels">Distribution Panels & Switchgear</option>
+                    <option value="Switchgears">Distribution Panels & Switchgear</option>
                   </select>
                 </div>
                 <div>
@@ -710,7 +710,7 @@ export default function InventoryPage() {
                     <option value="Transformers">Transformers & Bays</option>
                     <option value="Conductors">Conductors & Cables</option>
                     <option value="Insulators">Insulators & Clamps</option>
-                    <option value="Panels">Distribution Panels & Switchgear</option>
+                    <option value="Switchgears">Distribution Panels & Switchgear</option>
                   </select>
                 </div>
                 <div>

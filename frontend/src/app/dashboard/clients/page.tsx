@@ -18,7 +18,8 @@ import {
   AlertTriangle,
   Building,
   Briefcase,
-  Receipt
+  Receipt,
+  User
 } from 'lucide-react';
 
 interface Client {
