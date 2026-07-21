@@ -28,7 +28,7 @@ import {
   UserCheck, 
   Users, 
   Zap 
-} from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 export default function PublicLandingPage() {
   // States for interactive UI
@@ -51,8 +51,6 @@ export default function PublicLandingPage() {
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   const handleQuoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,8 +191,8 @@ export default function PublicLandingPage() {
               <Zap className="w-6 h-6 text-white animate-pulse" />
             </div>
             <div>
-              <span className="font-bold text-xl tracking-tight text-white">VoltFlow</span>
-              <span className="text-xs block text-slate-400 font-medium -mt-1">Contracting Ltd</span>
+              <span className="font-bold text-xl tracking-tight text-white">Shree Balaji Traders</span>
+              <span className="text-xs block text-slate-400 font-medium -mt-1">Contracting & Supply Ltd</span>
             </div>
           </div>
 
@@ -294,7 +292,7 @@ export default function PublicLandingPage() {
                 Haryana’s Trusted Partner for High-Voltage Electrical Infrastructure
               </h2>
               <p className="mt-6 text-slate-400 font-light leading-relaxed">
-                VoltFlow Contracting has been at the forefront of electrical distribution and grid infrastructure. We hold an A-Class electrical contractor license, specialized in delivering power line construction and substation engineering projects for both government institutions and multi-national private infrastructure networks.
+                Shree Balaji Traders has been at the forefront of electrical distribution and grid infrastructure. We hold an A-Class electrical contractor license, specialized in delivering power line construction and substation engineering projects for both government institutions and multi-national private infrastructure networks.
               </p>
               <p className="mt-4 text-slate-400 font-light leading-relaxed">
                 Our capability stretches from laying high-tension (HT) distribution networks for DHBVN to building rapid deployment utility pole networks for telecom companies like Reliance Jio. We bring engineering precision, speed, and safety to the site.
@@ -677,8 +675,8 @@ export default function PublicLandingPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-white text-sm">Email Address</h4>
-                    <p className="text-xs text-slate-400 mt-1">info@voltflow-contractor.com</p>
-                    <p className="text-xs text-slate-400 mt-0.5">tenders@voltflow-contractor.com</p>
+                    <p className="text-xs text-slate-400 mt-1">info@shreebalajitraders.com</p>
+                    <p className="text-xs text-slate-400 mt-0.5">tenders@shreebalajitraders.com</p>
                   </div>
                 </div>
               </div>
@@ -765,7 +763,7 @@ export default function PublicLandingPage() {
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-sm tracking-tight text-white block">VoltFlow Contracting</span>
+              <span className="font-bold text-sm tracking-tight text-white block">Shree Balaji Traders</span>
               <span className="text-[10px] text-slate-400 block -mt-1">Class-A Electrical Contractor License No: 182-E</span>
             </div>
           </div>
@@ -779,7 +777,7 @@ export default function PublicLandingPage() {
           </div>
 
           <div className="text-center md:text-right">
-            <p>© {new Date().getFullYear()} VoltFlow Contracting Ltd. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Shree Balaji Traders Ltd. All rights reserved.</p>
             <p className="mt-1 text-[10px] text-slate-600">Designed for Utility-Grade Electrical Infrastructure Contracting & Project Auditing.</p>
           </div>
         </div>
