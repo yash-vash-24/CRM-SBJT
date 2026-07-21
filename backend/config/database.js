@@ -58,14 +58,14 @@ async function seedAllData() {
         // Admin
         await dbRun(
             `INSERT INTO users (name, email, password, role, company, phone, status) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['Subhash Tanwar', 'admin@electrical.com', adminHash, 'admin', 'VoltFlow Electricals', '9999999999', 'active']
+            ['Subhash Tanwar', 'admin@electrical.com', adminHash, 'admin', 'Shree Balaji Traders', '9999999999', 'active']
         );
         console.log('  Seeded Admin: admin@electrical.com / admin123');
 
         // Supervisor
         await dbRun(
             `INSERT INTO users (name, email, password, role, company, phone, status) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            ['Rajesh Kumar', 'supervisor1@electrical.com', supervisorHash, 'supervisor', 'VoltFlow Electricals', '9888877777', 'active']
+            ['Rajesh Kumar', 'supervisor1@electrical.com', supervisorHash, 'supervisor', 'Shree Balaji Traders', '9888877777', 'active']
         );
         console.log('  Seeded Supervisor: supervisor1@electrical.com / super123');
 
