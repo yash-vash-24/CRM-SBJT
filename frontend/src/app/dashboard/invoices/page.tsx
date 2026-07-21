@@ -19,6 +19,7 @@ import {
   Eye,
   ArrowUpRight
 } from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 interface Invoice {
   id: number;
@@ -68,8 +69,6 @@ export default function InvoicesPage() {
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchInvoices();
@@ -430,7 +429,7 @@ export default function InvoicesPage() {
                 <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
                 <div className="flex justify-between items-start text-[10px]">
                   <div>
-                    <span className="font-bold text-xs text-blue-600 block">VOLTFLOW CONTRACTING</span>
+                    <span className="font-bold text-xs text-blue-600 block">SHREE BALAJI TRADERS</span>
                     <span className="block mt-0.5">Govt Licensed Class-A</span>
                     <span>Sirsa, Haryana</span>
                   </div>
