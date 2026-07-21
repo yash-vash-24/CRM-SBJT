@@ -69,7 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-bold text-base tracking-tight text-white block">VoltFlow</span>
+            <span className="font-bold text-base tracking-tight text-white block">Shree Balaji Traders</span>
             <span className="text-[10px] text-slate-400 block -mt-1 font-medium">ERP & Project CRM</span>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-base tracking-tight text-white block">VoltFlow</span>
+              <span className="font-bold text-base tracking-tight text-white block">Shree Balaji Traders</span>
               <span className="text-[10px] text-slate-400 block -mt-1 font-medium">ERP & Project CRM</span>
             </div>
           </div>
