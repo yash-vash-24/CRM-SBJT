@@ -22,19 +22,24 @@ const tenderRoutes = require('./routes/tenderRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 
+const path = require('path');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Apply Global Middlewares
-// Apply Global Middlewares
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    // Allow localhost and ANY domain ending with .vercel.app
-    if (origin.endsWith('.vercel.app') || origin.includes('localhost')) {
+    if (
+      origin === 'http://localhost:3000' ||
+      origin === 'http://127.0.0.1:3000' ||
+      origin === process.env.CLIENT_URL ||
+      origin.endsWith('.vercel.app')
+    ) {
       return callback(null, true);
     }
-    return callback(null, true); // Allow all valid origins
+    return callback(null, true); // Allow all Vercel deployment URLs dynamically
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -43,6 +48,7 @@ app.use(cors({
 
 app.use(express.json()); // Enable body parsing for JSON payloads
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Mount REST API Routes
 app.use('/api/auth', authRoutes);
@@ -79,5 +85,5 @@ app.use((err, req, res, next) => {
 
 // Listen on the configured port
 app.listen(PORT, () => {
-    console.log(`⚡ VoltFlow CRM Backend is running on http://localhost:${PORT}`);
+    console.log(`⚡ Shree Balaji Traders CRM Backend is running on http://localhost:${PORT}`);
 });
