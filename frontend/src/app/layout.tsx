@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VoltFlow CRM | Electrical Contractor Project & Operations Management",
-  description: "VoltFlow CRM is a professional, full-scale project management and client relationship system designed specifically for utility-grade electrical infrastructure, DHBVN projects, substation construction, and high-tension transmission grid contracting.",
+  title: "Shree Balaji Traders | Electrical Contractor Project & Operations Management",
+  description: "Shree Balaji Traders CRM is a professional, full-scale project management and client relationship system designed specifically for utility-grade electrical infrastructure, DHBVN projects, substation construction, and high-tension transmission grid contracting.",
   keywords: ["electrical contractor", "CRM", "project management", "DHBVN", "utility maintenance", "electrical infrastructure", "transformer installation", "HT line erection"],
 };
 
