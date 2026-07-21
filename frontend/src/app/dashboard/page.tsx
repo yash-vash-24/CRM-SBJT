@@ -21,7 +21,7 @@ import {
   Building2,
   Phone,
   Mail
-} from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 interface DashboardStats {
   projects: { total: number; active: number; completed: number; planning: number };
@@ -42,8 +42,6 @@ export default function DashboardPage() {
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [invoicesList, setInvoicesList] = useState<any[]>([]);
   const [docsList, setDocsList] = useState<any[]>([]);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const fetchDashboardData = async () => {
