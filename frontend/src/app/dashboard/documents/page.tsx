@@ -17,6 +17,7 @@ import {
   FileCheck2,
   ExternalLink
 } from 'lucide-react';
+import { API_URL, BACKEND_BASE_URL } from '@/config/api';
 
 interface Document {
   id: number;
@@ -63,8 +64,6 @@ export default function DocumentsPage() {
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchDocuments();
@@ -333,7 +332,7 @@ export default function DocumentsPage() {
 
                 {/* Simulated file download link */}
                 <a
-                  href={`http://localhost:5000${doc.file_path}`}
+                  href={`${BACKEND_BASE_URL}${doc.file_path}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center space-x-1 bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white px-2.5 py-1 rounded font-bold text-[9px] transition-all"
