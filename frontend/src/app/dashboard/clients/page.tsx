@@ -21,6 +21,7 @@ import {
   Receipt,
   User
 } from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 interface Client {
   id: number;
@@ -58,8 +59,6 @@ export default function ClientsPage() {
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchClients();
