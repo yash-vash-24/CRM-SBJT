@@ -16,6 +16,7 @@ import {
   Trash2,
   Edit3
 } from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 interface InventoryItem {
   id: number;
@@ -73,8 +74,6 @@ export default function InventoryPage() {
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchInventory();
