@@ -22,6 +22,7 @@ import {
   TrendingUp,
   UserPlus
 } from 'lucide-react';
+import { API_URL } from '@/config/api';
 
 interface Project {
   id: number;
@@ -97,8 +98,6 @@ export default function ProjectsPage() {
   // Assign worker state
   const [assigningWorkerId, setAssigningWorkerId] = useState<string>('');
   const [assigningLoading, setAssigningLoading] = useState(false);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchProjects();
