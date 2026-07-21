@@ -26,13 +26,18 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Apply Global Middlewares
+// Apply Global Middlewares
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://crm-sbjt.vercel.app'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    // Allow localhost and ANY domain ending with .vercel.app
+    if (origin.endsWith('.vercel.app') || origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Allow all valid origins
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
