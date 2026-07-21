@@ -70,7 +70,7 @@ export default function LoginPage() {
             <Zap className="w-7 h-7 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">VoltFlow Portal</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Shree Balaji Traders</h1>
             <span className="text-xs text-slate-400 block -mt-1">Contractor ERP & Operations Dashboard</span>
           </div>
         </div>
