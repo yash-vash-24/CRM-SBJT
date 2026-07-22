@@ -1,3 +1,4 @@
+// Force Vercel rebuild for Shree Balaji Traders dashboard sidebar
 'use client';
 
 import React, { useState, useEffect } from 'react';
